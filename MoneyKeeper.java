@@ -1,7 +1,9 @@
 import java.util.Random;
 
-// Keeps banks money and do exchange
-public class MoneyKeeper extends Thread {
+// Singleton, keeps banks money and do exchange
+public enum MoneyKeeper {
+
+	INSTANCE;
 
 	private float startGrnValue;
 	private float startUsdValue;
@@ -10,20 +12,12 @@ public class MoneyKeeper extends Thread {
 	private float usdValue;
 	private final float SELL_COURCE = 26.2f;
 	private final float BUY_COURCE = 25.8f;
+	private final float FLOAT_5f = 5f;
+	private final float FLOAT_2f = 2f;
 
-	public MoneyKeeper() {
-
-		grnValue = startGrnValue = getStartMoney() * 5f;
+	private MoneyKeeper() {
+		grnValue = startGrnValue = getStartMoney() * FLOAT_5f;
 		usdValue = startUsdValue = getStartMoney();
-
-		// wait while all done
-		try {
-			sleep(4);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		// and started operations
-		this.start();
 	}
 
 	private float getStartMoney() {
@@ -41,26 +35,26 @@ public class MoneyKeeper extends Thread {
 
 		if (getTypeOperation() == 0) {
 			// sell half of usd
-			summOfOperation = (csUsdValue / 2) * BUY_COURCE;
+			summOfOperation = (csUsdValue / FLOAT_2f) * BUY_COURCE;
 
 			if (summOfOperation > grnValue) {
 				customer.setHaveEnoughMoneyFalse();
 			} else {
 				grnValue = grnValue - summOfOperation;
-				usdValue = usdValue + (csUsdValue / 2);
+				usdValue = usdValue + (csUsdValue / FLOAT_2f);
 				customer.setGrnValue(csGrnValue + summOfOperation);
-				customer.setUsdValue(csUsdValue - (csUsdValue / 2));
+				customer.setUsdValue(csUsdValue - (csUsdValue / FLOAT_2f));
 			}
 
 		} else {
 			// buy usd on half of grn
-			summOfOperation = (csGrnValue / 2) / SELL_COURCE;
+			summOfOperation = (csGrnValue / FLOAT_2f) / SELL_COURCE;
 			if (summOfOperation > usdValue) {
 				customer.setHaveEnoughMoneyFalse();
 			} else {
-				grnValue = grnValue + (csGrnValue / 2);
+				grnValue = grnValue + (csGrnValue / FLOAT_2f);
 				usdValue = usdValue - summOfOperation;
-				customer.setGrnValue(csGrnValue - (csGrnValue / 2));
+				customer.setGrnValue(csGrnValue - (csGrnValue / FLOAT_2f));
 				customer.setUsdValue(csUsdValue + summOfOperation);
 			}
 		}

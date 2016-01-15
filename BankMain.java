@@ -1,6 +1,9 @@
+import java.awt.Button;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -10,11 +13,11 @@ import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 
-public class BankMain extends JFrame {
+public class BankMain extends JFrame implements ActionListener {
 
 	private static JTextArea textArea = new JTextArea(6, 25);
 	private static Customer[] customers = new Customer[5];
-	private static MoneyKeeper moneyKeeper;
+	static MoneyKeeper moneyKeeper = MoneyKeeper.INSTANCE;
 
 	public BankMain() {
 		super("Эмулятор обменки");
@@ -23,6 +26,11 @@ public class BankMain extends JFrame {
 		final JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+		Button btStart = new Button("START");
+		btStart.setActionCommand("btStart");
+		mainPanel.add(btStart);
+		btStart.addActionListener(this);
 
 		Border lineBorder = BorderFactory.createLineBorder(Color.BLACK);
 		Border marginBorder = BorderFactory.createEmptyBorder(3, 10, 0, 0);
@@ -49,19 +57,8 @@ public class BankMain extends JFrame {
 			}
 		});
 		fillStartData();
-		viewStateOfAll();
 
-		for (int i = 0; i < customers.length; i++) {
-			Customer customer = customers[i];
-			try {
-				customer.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
 		viewStateOfAll();
-		String st = textArea.getText();
-		textArea.setText(st + "\n" + "All stoped. Money keeper always in profit )");
 	}
 
 	static void viewStateOfAll() {
@@ -105,25 +102,28 @@ public class BankMain extends JFrame {
 		textArea.setText(stBuffer.toString());
 	}
 
-	static void stopOperation() {
-		for (int i = 0; i < customers.length; i++) {
-			Customer ks = customers[i];
-			if (ks.isAlive()) {
-				ks.interrupt();
-			}
-		}
-		viewStateOfAll();
-	}
-
 	private static void fillStartData() {
 
-		moneyKeeper = new MoneyKeeper();
-
 		for (int i = 0; i < customers.length; i++) {
-			Customer ks = new Customer(moneyKeeper);
+			Customer ks = new Customer();
 			ks.setName("Customer " + i);
 			customers[i] = ks;
 		}
+
+		for (int i = 0; i < customers.length; i++) {
+			Customer customer = customers[i];
+			try {
+				customer.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		viewStateOfAll();
+		String st = textArea.getText();
+		textArea.setText(st + "\n"
+				+ "All stoped. Money keeper always in profit )");
+
 	}
 
 	static String getMainText() {
@@ -132,6 +132,18 @@ public class BankMain extends JFrame {
 
 	void setMainText(String text) {
 		textArea.setText(text);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		String a = e.getActionCommand();
+		if (a.equals("btStart")) {
+
+			for (int i = 0; i < customers.length; i++) {
+				Customer customer = customers[i];
+				customer.start();
+			}
+		}
 	}
 
 }

@@ -5,25 +5,15 @@ public class Customer extends Thread {
 	private volatile float grnValue;
 	private volatile float usdValue;
 	private int sleepTime;
-	private MoneyKeeper moneyKeeper;
+	private MoneyKeeper moneyKeeper = MoneyKeeper.INSTANCE;
 	private volatile Boolean haveEnoughMoney;
 
-	public Customer(MoneyKeeper mk) {
+	public Customer() {
 
 		this.sleepTime = getRandomSleep();
 		this.grnValue = getStartMoney();
 		this.usdValue = getStartMoney();
-		this.moneyKeeper = mk;
 		this.haveEnoughMoney = true;
-
-		// wait while all done
-		try {
-			sleep(3);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		// and started operations
-		this.start();
 	}
 
 	private float getStartMoney() {
